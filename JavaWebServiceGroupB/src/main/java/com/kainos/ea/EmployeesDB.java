@@ -40,7 +40,7 @@ public class EmployeesDB {
                         "Properties file must exist and must contain "
                                 + "user, password, and host properties.");
             conn = DriverManager.getConnection("jdbc:mysql://"
-                    + host + "/GroupB_PaulinaS?useSSL=false", user, password);
+                    + host + "/Week2_MatthewK?useSSL=false", user, password);
             return conn;
 
         } catch (Exception e) {
@@ -48,41 +48,29 @@ public class EmployeesDB {
         }
         return null;
     }
-    public static List<String> getEmployees() {
-        List<String> emps = new ArrayList<>();
-        String resp = "";
+    public static List<Employee> getSalesEmployees() {
+        List<Employee> emps = new ArrayList<>();
         try {
             Connection con = EmployeesDB.getConnection();  // Bad practices alert!
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery(
-                    "SELECT s.se_id AS 'Sales ID', " +
-                            "                    CONCAT_WS (' ', e.fname, e.lname) AS 'Sales name'" +
-                            "                    FROM Employee e, SalesEmployee s " +
-                            "                    WHERE e.emp_id = s.se_id;");
-            while (rs.next()) {
-                /*Employee dbEmp = new Employee((short) rs.getInt("emp_id"), rs.getDouble("salary"), rs.getString("fname"), rs.getString("lname"),
-                        rs.getString("bankAccountNumber"), rs.getString("NIN"),
-                        rs.getString("phoneNumber"), rs.getString("email"));
-                System.out.println(dbEmp);
-
-                 */
-                resp = ("These is a sales employee: " + "ID: " +  rs.getInt("Sales ID")
-                        + ", name: " +  rs.getString("Sales name"));
-                //emps.add(dbEmp);
-                emps.add(resp);
-
-
-            }
-            rs = st.executeQuery("SELECT s.de_id AS 'Delivery ID', " +
-                    "                    CONCAT_WS (' ', e.fname, e.lname) AS 'Delivery name'" +
-                    "                    FROM Employee e, DeliveryEmployee s " +
-                    "                    WHERE e.emp_id = s.de_id;");
-
+                    "SELECT emp_id, fname, lname, salary, bankAccountNumber, NIN, phoneNumber, email, SalesEmployee.Commission, " +
+                            "SalesEmployee.salesThisMonth FROM Employee JOIN SalesEmployee ON Employee.emp_id = SalesEmployee.se_id " +
+                            "WHERE Employee.emp_id = SalesEmployee.se_id;");
             while (rs.next()) {
 
-                resp = ("These is a delivery employee: " + "ID: " +  rs.getInt("Delivery ID")
-                        + ", name: " +  rs.getString("Delivery name"));
-                emps.add(resp);
+                Employee emp = new Employee(
+
+                        rs.getDouble("salary"),
+                        rs.getString("fname"),
+                        rs.getString("lname"),
+                        rs.getString("bankAccountNumber"),
+                        rs.getString("NIN"),
+                        rs.getString("phoneNumber"),
+                        rs.getString("email"));
+
+
+                emps.add(emp);
 
             }
         } catch (SQLException ex) {
@@ -91,6 +79,64 @@ public class EmployeesDB {
         return emps;
     }
 
+    public static List<Employee> getDeliveryEmployees() {
+        List<Employee> emps = new ArrayList<>();
+        try {
+            Connection con = EmployeesDB.getConnection();  // Bad practices alert!
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery("SELECT emp_id, fname, lname, salary, bankAccountNumber, NIN, phoneNumber, email, DeliveryEmployee.CvBio, DeliveryEmployee.Image, DeliveryEmployee.favouriteTechnology " +
+                    "FROM Employee " +
+                    "JOIN DeliveryEmployee ON Employee.emp_id = DeliveryEmployee.de_id " +
+                    "WHERE Employee.emp_id = DeliveryEmployee.de_id;");
+
+            while (rs.next()) {
+
+                Employee emp = new Employee(
+
+                        rs.getDouble("salary"),
+                        rs.getString("fname"),
+                        rs.getString("lname"),
+                        rs.getString("bankAccountNumber"),
+                        rs.getString("NIN"),
+                        rs.getString("phoneNumber"),
+                        rs.getString("email"));
+
+
+                emps.add(emp);
+
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace(); // Bad practice alert!
+        }
+        return emps;
+    }
+
+    public static List<Employee> getEmployees() {
+        List<Employee> emps = new ArrayList<>();
+        try {
+            Connection con = EmployeesDB.getConnection();  // Bad practices alert!
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery("SELECT * FROM Employee;");
+
+            while (rs.next()) {
+
+                Employee emp = new Employee(
+
+                        rs.getDouble("salary"),
+                        rs.getString("fname"),
+                        rs.getString("lname"),
+                        rs.getString("bankAccountNumber"),
+                        rs.getString("NIN"),
+                        rs.getString("phoneNumber"),
+                        rs.getString("email"));
+
+                emps.add(emp);
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace(); // Bad practice alert!
+        }
+        return emps;
+    }
     public static String insertEmployees(Employee employee) {
         try {
             Connection con = EmployeesDB.getConnection();  // Bad practices alert!
@@ -109,7 +155,7 @@ public class EmployeesDB {
         return "Employee:"+employee.getFirstName()+" "+employee.getLastName()+" added!";
     }
 //INSERT INTO SalesEmployee (se_id,Commision, salesThisMonth) VALUES (7,0.010, 40000.50);
-    public static String insertESalesEmployees(SalesEmployee employee) {
+    public static String insertSalesEmployees(SalesEmployee employee) {
         int i=0;
         try {
             Connection con = EmployeesDB.getConnection();  // Bad practices alert!
@@ -127,7 +173,7 @@ public class EmployeesDB {
 
 
             }
-            st.executeUpdate("INSERT INTO SalesEmployee (se_id,Commision, salesThisMonth) VALUES ('" + i + "', '"+
+            st.executeUpdate("INSERT INTO SalesEmployee (se_id,Commission, salesThisMonth) VALUES ('" + i + "', '"+
                     employee.getCommissionRate() + "', '" + employee.getSalesTotal() + "')" );
         } catch (SQLException ex) {
             ex.printStackTrace(); // Bad practice alert!

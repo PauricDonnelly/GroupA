@@ -19,11 +19,32 @@ public class WebService {
     }
 
     @GET
+    @Path("/reportSalesEmployeeDetails")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<Employee> reportSalesEmployeeDetails() {
+        //String result = "";
+        //for (City c : CitiesDB.getCities()) {
+        //    result += c.getName() + ", \n";
+        //}
+        return EmployeesDB.getSalesEmployees();
+    }
+
+    @GET
+    @Path("/reportDeliveryEmployeeDetails")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<Employee> reportDeliveryEmployeeDetails() {
+        //String result = "";
+        //for (City c : CitiesDB.getCities()) {
+        //    result += c.getName() + ", \n";
+        //}
+        return EmployeesDB.getDeliveryEmployees();
+    }
+
+    @GET
     @Path("/reportEmployeeDetails")
     @Produces(MediaType.APPLICATION_JSON)
-    public String reportEmployeeDetails() {
-        String result = String.join("\n ", EmployeesDB.getEmployees());
-        return result;
+    public List<Employee> reportEmployeeDetails() {
+        return EmployeesDB.getEmployees();
     }
 
     @POST
@@ -39,7 +60,7 @@ public class WebService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public String insertSalesEmployee(SalesEmployee employee) {
-        return EmployeesDB.insertESalesEmployees(employee);
+        return EmployeesDB.insertSalesEmployees(employee);
     }
 
     @POST
